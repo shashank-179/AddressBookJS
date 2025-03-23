@@ -63,6 +63,11 @@ class AddressBook {
         });
     }
 
+    countContacts() {
+        const count = this.contacts.reduce((total) => total + 1, 0);
+        console.log(`📊 Total Contacts: ${count}`);
+    }
+
     findContact(firstName, lastName) {
         return this.contacts.find(contact => contact.firstName === firstName && contact.lastName === lastName);
     }
@@ -92,7 +97,8 @@ function showMenu() {
     console.log("2. Edit a Contact");
     console.log("3. View All Contacts");
     console.log("4. Delete a Contact");
-    console.log("5. Exit");
+    console.log("5. Count Contacts");
+    console.log("6. Exit");
 
     rl.question("Enter your choice: ", (choice) => {
         switch (choice) {
@@ -110,11 +116,15 @@ function showMenu() {
                 deleteContactPrompt();
                 break;
             case "5":
+                myAddressBook.countContacts();
+                showMenu();
+                break;
+            case "6":
                 console.log("👋 Exiting Address Book.");
                 rl.close();
                 break;
             default:
-                console.log("❌ Invalid choice, please enter 1-5.");
+                console.log("❌ Invalid choice, please enter 1-6.");
                 showMenu();
         }
     });
