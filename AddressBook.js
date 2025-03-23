@@ -67,22 +67,14 @@ class AddressBook {
         return this.contacts.find(contact => contact.firstName === firstName && contact.lastName === lastName);
     }
 
-    editContact(firstName, lastName, updatedDetails) {
-        let contact = this.findContact(firstName, lastName);
-        if (!contact) {
+    deleteContact(firstName, lastName) {
+        const index = this.contacts.findIndex(contact => contact.firstName === firstName && contact.lastName === lastName);
+        if (index === -1) {
             console.log("❌ Contact not found.");
             return;
         }
-
-        // Update details if provided
-        if (updatedDetails.address) contact.address = updatedDetails.address;
-        if (updatedDetails.city) contact.city = updatedDetails.city;
-        if (updatedDetails.state) contact.state = updatedDetails.state;
-        if (updatedDetails.zip) contact.zip = updatedDetails.zip;
-        if (updatedDetails.phone) contact.phone = updatedDetails.phone;
-        if (updatedDetails.email) contact.email = updatedDetails.email;
-
-        console.log(`✅ Contact updated: ${contact.display()}`);
+        this.contacts.splice(index, 1);
+        console.log(`🗑️ Contact ${firstName} ${lastName} deleted successfully.`);
     }
 }
 
@@ -94,13 +86,13 @@ const rl = readline.createInterface({
 
 const myAddressBook = new AddressBook();
 
-// Function to prompt user for action
 function showMenu() {
     console.log("\n📌 Address Book Menu:");
     console.log("1. Add a Contact");
     console.log("2. Edit a Contact");
     console.log("3. View All Contacts");
-    console.log("4. Exit");
+    console.log("4. Delete a Contact");
+    console.log("5. Exit");
 
     rl.question("Enter your choice: ", (choice) => {
         switch (choice) {
@@ -115,17 +107,19 @@ function showMenu() {
                 showMenu();
                 break;
             case "4":
+                deleteContactPrompt();
+                break;
+            case "5":
                 console.log("👋 Exiting Address Book.");
                 rl.close();
                 break;
             default:
-                console.log("❌ Invalid choice, please enter 1-4.");
+                console.log("❌ Invalid choice, please enter 1-5.");
                 showMenu();
         }
     });
 }
 
-// Function to add a contact
 function addContactPrompt() {
     rl.question("Enter First Name: ", (firstName) => {
         rl.question("Enter Last Name: ", (lastName) => {
@@ -152,7 +146,6 @@ function addContactPrompt() {
     });
 }
 
-// Function to edit a contact
 function editContactPrompt() {
     rl.question("Enter First Name of the contact to edit: ", (firstName) => {
         rl.question("Enter Last Name of the contact to edit: ", (lastName) => {
@@ -164,31 +157,36 @@ function editContactPrompt() {
             }
 
             console.log("\nEnter new details (press Enter to keep the existing value):");
-            rl.question(`New Address (${contact.address}): `, (address) => {
-                rl.question(`New City (${contact.city}): `, (city) => {
-                    rl.question(`New State (${contact.state}): `, (state) => {
-                        rl.question(`New ZIP Code (${contact.zip}): `, (zip) => {
-                            rl.question(`New Phone Number (${contact.phone}): `, (phone) => {
-                                rl.question(`New Email (${contact.email}): `, (email) => {
-                                    let updatedDetails = {
-                                        address: address || contact.address,
-                                        city: city || contact.city,
-                                        state: state || contact.state,
-                                        zip: zip || contact.zip,
-                                        phone: phone || contact.phone,
-                                        email: email || contact.email
-                                    };
-                                    myAddressBook.editContact(firstName, lastName, updatedDetails);
-                                    showMenu();
-                                });
-                            });
-                        });
-                    });
+            const fields = ["address", "city", "state", "zip", "phone", "email"];
+            let index = 0;
+
+            function editField() {
+                if (index >= fields.length) {
+                    console.log(`✅ Contact updated: ${contact.display()}`);
+                    showMenu();
+                    return;
+                }
+
+                const field = fields[index];
+                rl.question(`New ${field.charAt(0).toUpperCase() + field.slice(1)} (${contact[field]}): `, (newValue) => {
+                    if (newValue) contact[field] = newValue;
+                    index++;
+                    editField();
                 });
-            });
+            }
+
+            editField();
         });
     });
 }
 
-// Start the application
+function deleteContactPrompt() {
+    rl.question("Enter First Name of the contact to delete: ", (firstName) => {
+        rl.question("Enter Last Name of the contact to delete: ", (lastName) => {
+            myAddressBook.deleteContact(firstName, lastName);
+            showMenu();
+        });
+    });
+}
+
 showMenu();
