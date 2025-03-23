@@ -36,7 +36,7 @@ class Contact {
     validateEmail(email) {
         return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
     }
-
+    
     display() {
         return `${this.firstName} ${this.lastName}, ${this.address}, ${this.city}, ${this.state} - ${this.zip}, Phone: ${this.phone}, Email: ${this.email}`;
     }
@@ -48,6 +48,11 @@ class AddressBook {
     }
 
     addContact(contact) {
+        const isDuplicate = this.contacts.filter(c => c.firstName === contact.firstName && c.lastName === contact.lastName).length > 0;
+        if (isDuplicate) {
+            console.log(`❌ Contact ${contact.firstName} ${contact.lastName} already exists!`);
+            return;
+        }
         this.contacts.push(contact);
         console.log(`✅ Contact added: ${contact.firstName} ${contact.lastName}`);
     }
@@ -58,13 +63,13 @@ class AddressBook {
             return;
         }
         console.log("\n📖 Address Book:");
-        this.contacts.forEach((contact, index) => {
+        this.contacts.map((contact, index) => {
             console.log(`${index + 1}. ${contact.display()}`);
         });
     }
 
     countContacts() {
-        const count = this.contacts.reduce((total) => total + 1, 0);
+        const count = this.contacts.reduce(total => total + 1, 0);
         console.log(`📊 Total Contacts: ${count}`);
     }
 
@@ -83,7 +88,6 @@ class AddressBook {
     }
 }
 
-// Create readline interface
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -99,33 +103,15 @@ function showMenu() {
     console.log("4. Delete a Contact");
     console.log("5. Count Contacts");
     console.log("6. Exit");
-
     rl.question("Enter your choice: ", (choice) => {
         switch (choice) {
-            case "1":
-                addContactPrompt();
-                break;
-            case "2":
-                editContactPrompt();
-                break;
-            case "3":
-                myAddressBook.displayContacts();
-                showMenu();
-                break;
-            case "4":
-                deleteContactPrompt();
-                break;
-            case "5":
-                myAddressBook.countContacts();
-                showMenu();
-                break;
-            case "6":
-                console.log("👋 Exiting Address Book.");
-                rl.close();
-                break;
-            default:
-                console.log("❌ Invalid choice, please enter 1-6.");
-                showMenu();
+            case "1": addContactPrompt(); break;
+            case "2": editContactPrompt(); break;
+            case "3": myAddressBook.displayContacts(); showMenu(); break;
+            case "4": deleteContactPrompt(); break;
+            case "5": myAddressBook.countContacts(); showMenu(); break;
+            case "6": console.log("👋 Exiting Address Book."); rl.close(); break;
+            default: console.log("❌ Invalid choice, please enter 1-6."); showMenu();
         }
     });
 }
@@ -152,49 +138,6 @@ function addContactPrompt() {
                     });
                 });
             });
-        });
-    });
-}
-
-function editContactPrompt() {
-    rl.question("Enter First Name of the contact to edit: ", (firstName) => {
-        rl.question("Enter Last Name of the contact to edit: ", (lastName) => {
-            let contact = myAddressBook.findContact(firstName, lastName);
-            if (!contact) {
-                console.log("❌ Contact not found.");
-                showMenu();
-                return;
-            }
-
-            console.log("\nEnter new details (press Enter to keep the existing value):");
-            const fields = ["address", "city", "state", "zip", "phone", "email"];
-            let index = 0;
-
-            function editField() {
-                if (index >= fields.length) {
-                    console.log(`✅ Contact updated: ${contact.display()}`);
-                    showMenu();
-                    return;
-                }
-
-                const field = fields[index];
-                rl.question(`New ${field.charAt(0).toUpperCase() + field.slice(1)} (${contact[field]}): `, (newValue) => {
-                    if (newValue) contact[field] = newValue;
-                    index++;
-                    editField();
-                });
-            }
-
-            editField();
-        });
-    });
-}
-
-function deleteContactPrompt() {
-    rl.question("Enter First Name of the contact to delete: ", (firstName) => {
-        rl.question("Enter Last Name of the contact to delete: ", (lastName) => {
-            myAddressBook.deleteContact(firstName, lastName);
-            showMenu();
         });
     });
 }
