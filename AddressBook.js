@@ -1,17 +1,15 @@
-// addressBook.js
-
 const readline = require("readline");
 
 class Contact {
     constructor(firstName, lastName, address, city, state, zip, phone, email) {
-        if (!this.validateName(firstName)) throw new Error("Invalid First Name! Must start with a capital letter and have at least 3 characters.");
-        if (!this.validateName(lastName)) throw new Error("Invalid Last Name! Must start with a capital letter and have at least 3 characters.");
-        if (!this.validateAddress(address)) throw new Error("Invalid Address! Must have at least 4 characters.");
-        if (!this.validateAddress(city)) throw new Error("Invalid City! Must have at least 4 characters.");
-        if (!this.validateAddress(state)) throw new Error("Invalid State! Must have at least 4 characters.");
-        if (!this.validateZip(zip)) throw new Error("Invalid ZIP Code! Must be a 5 or 6 digit number.");
-        if (!this.validatePhone(phone)) throw new Error("Invalid Phone Number! Must be a 10-digit number.");
-        if (!this.validateEmail(email)) throw new Error("Invalid Email Address! Format should be example@domain.com");
+        if (!this.validateName(firstName)) throw new Error("❌ Invalid First Name! Must start with a capital letter and have at least 3 characters.");
+        if (!this.validateName(lastName)) throw new Error("❌ Invalid Last Name! Must start with a capital letter and have at least 3 characters.");
+        if (!this.validateAddress(address)) throw new Error("❌ Invalid Address! Must have at least 4 characters.");
+        if (!this.validateAddress(city)) throw new Error("❌ Invalid City! Must have at least 4 characters.");
+        if (!this.validateAddress(state)) throw new Error("❌ Invalid State! Must have at least 4 characters.");
+        if (!this.validateZip(zip)) throw new Error("❌ Invalid ZIP Code! Must be a 5 or 6 digit number.");
+        if (!this.validatePhone(phone)) throw new Error("❌ Invalid Phone Number! Must be a 10-digit number.");
+        if (!this.validateEmail(email)) throw new Error("❌ Invalid Email Address! Format should be example@domain.com");
 
         this.firstName = firstName;
         this.lastName = lastName;
@@ -22,22 +20,19 @@ class Contact {
         this.phone = phone;
         this.email = email;
     }
+
     validateName(name) {
         return /^[A-Z][a-zA-Z]{2,}$/.test(name);
     }
-
     validateAddress(value) {
         return /^[a-zA-Z0-9\s]{4,}$/.test(value);
     }
-
     validateZip(zip) {
         return /^\d{5,6}$/.test(zip);
     }
-
     validatePhone(phone) {
         return /^\d{10}$/.test(phone);
     }
-
     validateEmail(email) {
         return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
     }
@@ -58,10 +53,36 @@ class AddressBook {
     }
 
     displayContacts() {
+        if (this.contacts.length === 0) {
+            console.log("📖 Address Book is empty.");
+            return;
+        }
         console.log("\n📖 Address Book:");
         this.contacts.forEach((contact, index) => {
             console.log(`${index + 1}. ${contact.display()}`);
         });
+    }
+
+    findContact(firstName, lastName) {
+        return this.contacts.find(contact => contact.firstName === firstName && contact.lastName === lastName);
+    }
+
+    editContact(firstName, lastName, updatedDetails) {
+        let contact = this.findContact(firstName, lastName);
+        if (!contact) {
+            console.log("❌ Contact not found.");
+            return;
+        }
+
+        // Update details if provided
+        if (updatedDetails.address) contact.address = updatedDetails.address;
+        if (updatedDetails.city) contact.city = updatedDetails.city;
+        if (updatedDetails.state) contact.state = updatedDetails.state;
+        if (updatedDetails.zip) contact.zip = updatedDetails.zip;
+        if (updatedDetails.phone) contact.phone = updatedDetails.phone;
+        if (updatedDetails.email) contact.email = updatedDetails.email;
+
+        console.log(`✅ Contact updated: ${contact.display()}`);
     }
 }
 
@@ -71,8 +92,41 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-// Function to get user input
-function getContactDetails() {
+const myAddressBook = new AddressBook();
+
+// Function to prompt user for action
+function showMenu() {
+    console.log("\n📌 Address Book Menu:");
+    console.log("1. Add a Contact");
+    console.log("2. Edit a Contact");
+    console.log("3. View All Contacts");
+    console.log("4. Exit");
+
+    rl.question("Enter your choice: ", (choice) => {
+        switch (choice) {
+            case "1":
+                addContactPrompt();
+                break;
+            case "2":
+                editContactPrompt();
+                break;
+            case "3":
+                myAddressBook.displayContacts();
+                showMenu();
+                break;
+            case "4":
+                console.log("👋 Exiting Address Book.");
+                rl.close();
+                break;
+            default:
+                console.log("❌ Invalid choice, please enter 1-4.");
+                showMenu();
+        }
+    });
+}
+
+// Function to add a contact
+function addContactPrompt() {
     rl.question("Enter First Name: ", (firstName) => {
         rl.question("Enter Last Name: ", (lastName) => {
             rl.question("Enter Address: ", (address) => {
@@ -81,10 +135,13 @@ function getContactDetails() {
                         rl.question("Enter ZIP Code: ", (zip) => {
                             rl.question("Enter Phone Number: ", (phone) => {
                                 rl.question("Enter Email: ", (email) => {
-                                    const newContact = new Contact(firstName, lastName, address, city, state, zip, phone, email);
-                                    myAddressBook.addContact(newContact);
-                                    myAddressBook.displayContacts();
-                                    rl.close();
+                                    try {
+                                        const newContact = new Contact(firstName, lastName, address, city, state, zip, phone, email);
+                                        myAddressBook.addContact(newContact);
+                                    } catch (error) {
+                                        console.log(error.message);
+                                    }
+                                    showMenu();
                                 });
                             });
                         });
@@ -95,5 +152,43 @@ function getContactDetails() {
     });
 }
 
-const myAddressBook = new AddressBook();
-getContactDetails();
+// Function to edit a contact
+function editContactPrompt() {
+    rl.question("Enter First Name of the contact to edit: ", (firstName) => {
+        rl.question("Enter Last Name of the contact to edit: ", (lastName) => {
+            let contact = myAddressBook.findContact(firstName, lastName);
+            if (!contact) {
+                console.log("❌ Contact not found.");
+                showMenu();
+                return;
+            }
+
+            console.log("\nEnter new details (press Enter to keep the existing value):");
+            rl.question(`New Address (${contact.address}): `, (address) => {
+                rl.question(`New City (${contact.city}): `, (city) => {
+                    rl.question(`New State (${contact.state}): `, (state) => {
+                        rl.question(`New ZIP Code (${contact.zip}): `, (zip) => {
+                            rl.question(`New Phone Number (${contact.phone}): `, (phone) => {
+                                rl.question(`New Email (${contact.email}): `, (email) => {
+                                    let updatedDetails = {
+                                        address: address || contact.address,
+                                        city: city || contact.city,
+                                        state: state || contact.state,
+                                        zip: zip || contact.zip,
+                                        phone: phone || contact.phone,
+                                        email: email || contact.email
+                                    };
+                                    myAddressBook.editContact(firstName, lastName, updatedDetails);
+                                    showMenu();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+}
+
+// Start the application
+showMenu();
