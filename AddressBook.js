@@ -76,6 +76,30 @@ class AddressBook {
     findContact(firstName, lastName) {
         return this.contacts.find(contact => contact.firstName === firstName && contact.lastName === lastName);
     }
+    searchByCity(city) {
+        const contactsInCity = this.contacts.filter(contact => contact.city.toLowerCase() === city.toLowerCase());
+    
+        if (contactsInCity.length === 0) {
+            console.log(`❌ No contacts found in ${city}.`);
+            return;
+        }
+    
+        console.log(`\n🏙️ Contacts in ${city}:`);
+        contactsInCity.map(contact => console.log(contact.display()));
+    }
+    
+    searchByState(state) {
+        const contactsInState = this.contacts.filter(contact => contact.state.toLowerCase() === state.toLowerCase());
+    
+        if (contactsInState.length === 0) {
+            console.log(`❌ No contacts found in ${state}.`);
+            return;
+        }
+    
+        console.log(`\n🌎 Contacts in ${state}:`);
+        contactsInState.map(contact => console.log(contact.display()));
+    }
+    
 
     deleteContact(firstName, lastName) {
         const index = this.contacts.findIndex(contact => contact.firstName === firstName && contact.lastName === lastName);
@@ -102,6 +126,8 @@ function showMenu() {
     console.log("3. View All Contacts");
     console.log("4. Delete a Contact");
     console.log("5. Count Contacts");
+    console.log("7. Search by City");
+    console.log("8. Search by State");
     console.log("6. Exit");
     rl.question("Enter your choice: ", (choice) => {
         switch (choice) {
@@ -111,6 +137,19 @@ function showMenu() {
             case "4": deleteContactPrompt(); break;
             case "5": myAddressBook.countContacts(); showMenu(); break;
             case "6": console.log("👋 Exiting Address Book."); rl.close(); break;
+            case "7":
+    rl.question("Enter City Name: ", (city) => {
+        myAddressBook.searchByCity(city);
+        showMenu();
+    });
+    break;
+
+case "8":
+    rl.question("Enter State Name: ", (state) => {
+        myAddressBook.searchByState(state);
+        showMenu();
+    });
+    break;
             default: console.log("❌ Invalid choice, please enter 1-6."); showMenu();
         }
     });
