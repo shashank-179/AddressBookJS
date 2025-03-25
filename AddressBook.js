@@ -40,6 +40,10 @@ class Contact {
     display() {
         return `${this.firstName} ${this.lastName}, ${this.address}, ${this.city}, ${this.state} - ${this.zip}, Phone: ${this.phone}, Email: ${this.email}`;
     }
+
+    toString() {
+        return `${this.firstName} ${this.lastName}, ${this.address}, ${this.city}, ${this.state} - ${this.zip}, Phone: ${this.phone}, Email: ${this.email}`;
+    }
 }
 
 class AddressBook {
@@ -56,6 +60,7 @@ class AddressBook {
         this.contacts.push(contact);
         console.log(`✅ Contact added: ${contact.firstName} ${contact.lastName}`);
     }
+    
 
     displayContacts() {
         if (this.contacts.length === 0) {
@@ -66,6 +71,12 @@ class AddressBook {
         this.contacts.map((contact, index) => {
             console.log(`${index + 1}. ${contact.display()}`);
         });
+        this.contacts.sort((a, b) => a.firstName.localeCompare(b.firstName));
+
+    console.log("\n📖 Sorted Address Book:");
+    this.contacts.map((contact, index) => {
+        console.log(`${index + 1}. ${contact.toString()}`);
+    });
     }
 
     countContacts() {
