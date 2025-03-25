@@ -78,7 +78,7 @@ class AddressBook {
     }
     searchByCity(city) {
         const contactsInCity = this.contacts.filter(contact => contact.city.toLowerCase() === city.toLowerCase());
-    
+        
         if (contactsInCity.length === 0) {
             console.log(`❌ No contacts found in ${city}.`);
             return;
@@ -86,11 +86,14 @@ class AddressBook {
     
         console.log(`\n🏙️ Contacts in ${city}:`);
         contactsInCity.map(contact => console.log(contact.display()));
+    
+        const count = contactsInCity.reduce(total => total + 1, 0);
+        console.log(`📊 Total contacts in ${city}: ${count}`);
     }
     
     searchByState(state) {
         const contactsInState = this.contacts.filter(contact => contact.state.toLowerCase() === state.toLowerCase());
-    
+        
         if (contactsInState.length === 0) {
             console.log(`❌ No contacts found in ${state}.`);
             return;
@@ -98,7 +101,11 @@ class AddressBook {
     
         console.log(`\n🌎 Contacts in ${state}:`);
         contactsInState.map(contact => console.log(contact.display()));
+    
+        const count = contactsInState.reduce(total => total + 1, 0);
+        console.log(`📊 Total contacts in ${state}: ${count}`);
     }
+    
     
 
     deleteContact(firstName, lastName) {
